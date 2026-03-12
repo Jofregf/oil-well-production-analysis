@@ -1,0 +1,9 @@
+__pycache__/
+.ipynb_checkpoints/
+.env
+*.csv
+*.parquet
+*.h5
+*.model
+data/raw/
+data/processed/
