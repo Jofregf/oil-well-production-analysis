@@ -116,3 +116,141 @@ The exploratory analysis highlights several important characteristics of the wel
 * **Reservoir pressure decreases gradually**, suggesting reservoir depletion.
 * Production dynamics reflect the behavior of a **mature oil well approaching late-stage production**.
 
+---
+
+## Decline Curve Analysis
+
+To estimate the long-term behavior of the well, **Decline Curve Analysis (DCA)** was applied. This technique is widely used in petroleum engineering to model production decline and forecast future output.
+
+The analysis was implemented in the notebook:
+
+```
+notebooks/04_decline_curve_analysis.ipynb
+```
+
+### Decline Models
+
+Two decline models were evaluated:
+
+#### Exponential Decline
+
+[
+q(t) = q_i e^{-Dt}
+]
+
+Where:
+
+* ( q(t) ) is the production rate at time *t*
+* ( q_i ) is the initial production rate
+* ( D ) is the decline rate
+
+---
+
+#### Hyperbolic Decline (Arps Model)
+
+[
+q(t) = \frac{q_i}{(1 + bDt)^{1/b}}
+]
+
+Where:
+
+* ( b ) controls the curvature of the decline
+* this model usually provides a better fit for real wells because the decline rate changes over time.
+
+---
+
+### Model Fitting
+
+Both models were fitted using **nonlinear least squares optimization** with `scipy.optimize.curve_fit`.
+
+The quality of the fit was evaluated using **Root Mean Squared Error (RMSE)**.
+
+The model with the lowest RMSE is automatically selected as the **best decline model**.
+
+---
+
+### Production Forecast
+
+Once the best decline model is identified, it is used to forecast **future oil production**.
+
+The forecast allows estimation of future production trends and remaining reserves.
+
+---
+
+### Estimated Ultimate Recovery (EUR)
+
+Using the forecast, the **Estimated Ultimate Recovery (EUR)** is calculated:
+
+```
+EUR = cumulative historical production + predicted future production
+```
+
+This provides an estimate of the **total amount of oil that the well will produce during its lifetime**.
+
+---
+
+### Key Visualizations
+
+The analysis includes several visualizations to interpret well performance:
+
+#### Oil Production Over Time
+
+Shows the historical production trend of the well.
+
+![Oil production](outputs/figures/30days_average_oil_production.png)
+
+---
+
+#### Decline Curve Model Fit
+
+Comparison between historical production and the fitted decline model.
+
+![Decline curve analysis](outputs/figures/decline_curve_analysis.png)
+---
+
+#### Model Comparison
+
+Visual comparison between the exponential and hyperbolic decline models.
+
+![Model comparison](outputs/figures/decline_model_comparison.png)
+
+---
+
+#### Production Forecast
+
+Projection of future oil production based on the selected decline model.
+
+![Production forecast](outputs/figures/oil_production_forecast_best_model.png)
+
+---
+
+#### Cumulative Production and EUR Projection
+
+Shows the cumulative production and the projected ultimate recovery of the well.
+
+![Eur projection](outputs/figures/eur_projection.png)
+
+---
+
+## Interactive Dashboard
+
+An interactive dashboard was developed using **Streamlit** to explore production forecasts dynamically.
+
+The dashboard allows users to:
+
+* choose the decline model (Exponential or Hyperbolic)
+* adjust the forecast horizon
+* visualize historical production
+* explore future production scenarios
+* estimate the **Estimated Ultimate Recovery (EUR)** interactively
+
+### Running the Dashboard
+
+From the root directory of the project:
+
+```bash
+streamlit run app/dashboard.py
+```
+
+The application will open automatically in the browser.
+
