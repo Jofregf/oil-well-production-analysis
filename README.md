@@ -254,3 +254,188 @@ streamlit run app/dashboard.py
 
 The application will open automatically in the browser.
 
+## ### Decline Models
+
+Two decline models were evaluated:
+
+#### Exponential Decline
+
+[
+q(t) = q_i e^{-Dt}
+]
+
+Where:
+
+* ( q(t) ) is the production rate at time *t*
+* ( q_i ) is the initial production rate
+* ( D ) is the decline rate
+
+---
+
+#### Hyperbolic Decline (Arps Model)
+
+[
+q(t) = \frac{q_i}{(1 + bDt)^{1/b}}
+]
+
+Where:
+
+* ( b ) controls the curvature of the decline
+* this model usually provides a better fit for real wells because the decline rate changes over time.
+
+---
+
+### Model Fitting
+
+Both models were fitted using **nonlinear least squares optimization** with `scipy.optimize.curve_fit`.
+
+The quality of the fit was evaluated using **Root Mean Squared Error (RMSE)**.
+
+The model with the lowest RMSE is automatically selected as the **best decline model**.
+
+---
+
+### Production Forecast
+
+Once the best decline model is identified, it is used to forecast **future oil production**.
+
+The forecast allows estimation of future production trends and remaining reserves.
+
+---
+
+### Estimated Ultimate Recovery (EUR)
+
+Using the forecast, the **Estimated Ultimate Recovery (EUR)** is calculated:
+
+```
+EUR = cumulative historical production + predicted future production
+```
+
+This provides an estimate of the **total amount of oil that the well will produce during its lifetime**.
+
+---
+
+### Key Visualizations
+
+The analysis includes several visualizations to interpret well performance:
+
+#### Oil Production Over Time
+
+Shows the historical production trend of the well.
+
+![Oil production](outputs/figures/30days_average_oil_production.png)
+
+---
+
+#### Decline Curve Model Fit
+
+Comparison between historical production and the fitted decline model.
+
+![Decline curve analysis](outputs/figures/decline_curve_analysis.png)
+---
+
+#### Model Comparison
+
+Visual comparison between the exponential and hyperbolic decline models.
+
+![Model comparison](outputs/figures/decline_model_comparison.png)
+
+---
+
+#### Production Forecast
+
+Projection of future oil production based on the selected decline model.
+
+![Production forecast](outputs/figures/economic_limit_analysis.png)
+
+---
+
+#### Cumulative Production and EUR Projection
+
+Shows the cumulative production and the projected ultimate recovery of the well.
+
+![Eur projection](outputs/figures/eur_projection.png)
+
+---
+
+## Interactive Dashboard
+
+An interactive dashboard was developed using **Streamlit** to explore production forecasts dynamically.
+
+The dashboard allows users to:
+
+* choose the decline model (Exponential or Hyperbolic)
+* adjust the forecast horizon
+* visualize historical production
+* explore future production scenarios
+* estimate the **Estimated Ultimate Recovery (EUR)** interactively
+
+### Running the Dashboard
+
+From the root directory of the project:
+
+```bash
+streamlit run app/dashboard.py
+```
+
+The application will open automatically in the browser.
+
+### Economic Limit Analysis
+
+In real-world operations, wells are not produced indefinitely. Production stops when it becomes economically unviable.
+
+An economic threshold was defined:
+
+```python
+economic_limit = 5  # m3/day
+```
+Using the forecasted production, the first time where production falls below this threshold is identified.
+
+This allows estimation of:
+
+the economic limit date
+
+the abandonment point of the well
+
+If the production does not fall below the threshold within the forecast horizon, the well is considered economically viable for that period.
+
+### Revenue Estimation
+
+To translate production into business value, a simplified revenue model was implemented:
+
+```python
+oil_price = 70  # USD per m3
+revenue_future = q_forecast * oil_price
+total_revenue = revenue_future.sum()
+```
+This represents the total projected revenue over the forecast period.
+
+### Revenue Until Economic Limit
+
+A more realistic scenario considers only production until the economic limit is reached:
+```python
+if len(below_limit_idx) > 0:
+    q_economic = q_forecast[:below_limit_idx[0]]
+else:
+    q_economic = q_forecast
+
+revenue_economic = q_economic * oil_price
+total_revenue_economic = revenue_economic.sum()
+```
+This allows:
+
+estimating realistic revenue
+
+identifying when production should stop
+
+linking technical modeling with economic decision-making
+
+### Economic Interpretation
+
+By combining decline models, forecast, and economic limit:
+
+* production behavior is modeled mathematically
+* future output is estimated
+* operational decisions can be simulated
+
+This approach reflects how decline curve analysis is used in real oil & gas workflows.

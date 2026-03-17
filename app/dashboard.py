@@ -101,6 +101,15 @@ future_cum = q_future[-future_days:].sum()
 EUR = historical_cum + future_cum
 
 # -----------------------------
+# Revenues estimation
+# -----------------------------
+
+oil_price = 70
+revenue_future = q_future[-future_days:] * oil_price
+
+total_revenue = revenue_future.sum()
+
+# -----------------------------
 # Plot
 # -----------------------------
 
@@ -130,3 +139,4 @@ st.pyplot(fig)
 st.metric("Historical Production (m3)", f"{historical_cum:,.0f}")
 st.metric("Estimated Future Production (m3)", f"{future_cum:,.0f}")
 st.metric("Estimated Ultimate Recovery EUR (m3)", f"{EUR:,.0f}")
+st.metric("Estimated Revenue (USD)", f"{total_revenue:,.0f}")
