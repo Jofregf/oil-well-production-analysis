@@ -44,14 +44,14 @@ Additional validation checks confirmed:
 
 The cleaned dataset contains **2,940 daily observations** of oil well operational data spanning from **January 2013 to January 2021**. The dataset includes the following variables:
 
-* Oil production volume
-* Total liquid production
-* Gas production
-* Water production
-* Water cut (percentage of water in produced fluids)
-* Working hours
-* Dynamic fluid level
-* Reservoir pressure
+- Oil production volume
+- Total liquid production
+- Gas production
+- Water production
+- Water cut (percentage of water in produced fluids)
+- Working hours
+- Dynamic fluid level
+- Reservoir pressure
 
 Initial descriptive statistics show that the well produces an average of **17.6 m³/day of oil**, with values ranging from **0 to 49 m³/day**. The average water cut is approximately **70%**, indicating that a significant fraction of produced fluids consists of water, which is common in mature oil wells.
 
@@ -91,15 +91,15 @@ A correlation analysis was performed to explore relationships between key operat
 
 The results reveal several meaningful relationships:
 
-* **Oil production is negatively correlated with water cut**, indicating that higher water fractions are associated with lower oil output.
+- **Oil production is negatively correlated with water cut**, indicating that higher water fractions are associated with lower oil output.
 
 ![Oil production vs water cut](outputs/figures/oil_production_vs_water_cut.png)
 
-* **Oil production shows a positive relationship with reservoir pressure**, suggesting that higher reservoir pressure supports higher production rates.
+- **Oil production shows a positive relationship with reservoir pressure**, suggesting that higher reservoir pressure supports higher production rates.
 
 ![Oil production vs reservoir pressure](outputs/figures/oil_production_vs_reservoir_pressure.png)
 
-* **Liquid production is strongly correlated with water production**, reflecting the increasing contribution of water to total produced fluids.
+- **Liquid production is strongly correlated with water production**, reflecting the increasing contribution of water to total produced fluids.
 
 ![Liquid production vs water production](outputs/figures/liquid_production_vs_water_production.png)
 
@@ -111,10 +111,10 @@ These relationships are physically consistent with expected reservoir behavior a
 
 The exploratory analysis highlights several important characteristics of the well:
 
-* Oil production exhibits a **clear declining trend over time**.
-* **Water cut increases steadily**, indicating growing water production.
-* **Reservoir pressure decreases gradually**, suggesting reservoir depletion.
-* Production dynamics reflect the behavior of a **mature oil well approaching late-stage production**.
+- Oil production exhibits a **clear declining trend over time**.
+- **Water cut increases steadily**, indicating growing water production.
+- **Reservoir pressure decreases gradually**, suggesting reservoir depletion.
+- Production dynamics reflect the behavior of a **mature oil well approaching late-stage production**.
 
 ---
 
@@ -127,35 +127,39 @@ The analysis was implemented in the notebook:
 ```
 notebooks/04_decline_curve_analysis.ipynb
 ```
-
+---
 ### Decline Models
 
-Two decline models were evaluated:
+Two decline models were evaluated to describe the production behavior of the well:
 
 #### Exponential Decline
 
-[
+$$
 q(t) = q_i e^{-Dt}
-]
+$$
 
 Where:
 
-* ( q(t) ) is the production rate at time *t*
-* ( q_i ) is the initial production rate
-* ( D ) is the decline rate
+- $q(t)$ is the production rate at time $t$
+- $q_i$ is the initial production rate
+- $D$ is the decline rate
+
+This model assumes a **constant decline rate over time**.
 
 ---
 
 #### Hyperbolic Decline (Arps Model)
 
-[
+$$
 q(t) = \frac{q_i}{(1 + bDt)^{1/b}}
-]
+$$
 
 Where:
 
-* ( b ) controls the curvature of the decline
-* this model usually provides a better fit for real wells because the decline rate changes over time.
+- $b$ controls the curvature of the decline
+- the decline rate decreases over time
+
+This model is more flexible and typically provides a **better fit for real wells**.
 
 ---
 
@@ -163,7 +167,10 @@ Where:
 
 Both models were fitted using **nonlinear least squares optimization** with `scipy.optimize.curve_fit`.
 
-The quality of the fit was evaluated using **Root Mean Squared Error (RMSE)**.
+To evaluate model performance, two metrics were used:
+
+- **Root Mean Squared Error (RMSE)** → measures prediction error
+- **R² Score** → measures goodness of fit
 
 The model with the lowest RMSE is automatically selected as the **best decline model**.
 
@@ -171,9 +178,13 @@ The model with the lowest RMSE is automatically selected as the **best decline m
 
 ### Production Forecast
 
-Once the best decline model is identified, it is used to forecast **future oil production**.
+Once the best decline model is selected, it is used to forecast **future oil production** over a specified time horizon.
 
-The forecast allows estimation of future production trends and remaining reserves.
+This allows:
+
+- estimating production trends
+- understanding long-term well behavior
+- supporting decision-making
 
 ---
 
@@ -181,12 +192,9 @@ The forecast allows estimation of future production trends and remaining reserve
 
 Using the forecast, the **Estimated Ultimate Recovery (EUR)** is calculated:
 
+```python
+EUR = cumulative_production + forecasted_production
 ```
-EUR = cumulative historical production + predicted future production
-```
-
-This provides an estimate of the **total amount of oil that the well will produce during its lifetime**.
-
 ---
 
 ### Economic Limit Analysis
@@ -201,10 +209,8 @@ economic_limit = 5  # m3/day
 Using the forecasted production, the first time where production falls below this threshold is identified.
 
 This allows estimation of:
-
-the economic limit date
-
-the abandonment point of the well
+- the economic limit date
+- the abandonment point of the well
 
 If the production does not fall below the threshold within the forecast horizon, the well is considered economically viable for that period.
 
@@ -215,9 +221,9 @@ If the production does not fall below the threshold within the forecast horizon,
 To translate production into business value, a simplified revenue model was implemented:
 
 ```python
-oil_price = 70  # USD per m3
-revenue_future = q_forecast * oil_price
-total_revenue = revenue_future.sum()
+OIL_PRICE = 70  # USD per m3
+revenue = q_forecast * OIL_PRICE
+total_revenue = revenue.sum()
 ```
 This represents the total projected revenue over the forecast period.
 
@@ -227,33 +233,30 @@ This represents the total projected revenue over the forecast period.
 
 A more realistic scenario considers only production until the economic limit is reached:
 ```python
-if len(below_limit_idx) > 0:
-    q_economic = q_forecast[:below_limit_idx[0]]
+if idx_limit is not None:
+    q_economic = q_forecast[:idx_limit]
 else:
     q_economic = q_forecast
 
-revenue_economic = q_economic * oil_price
-total_revenue_economic = revenue_economic.sum()
+total_revenue_economic = (q_economic * OIL_PRICE).sum()
 ```
 This allows:
 
-estimating realistic revenue
-
-identifying when production should stop
-
-linking technical modeling with economic decision-making
+- estimating realistic revenue
+- identifying when production should stop
+- linking technical modeling with economic decision-making
 
 ---
 
 ### Economic Interpretation
 
-By combining decline models, forecast, and economic limit:
+By combining decline models, forecasting, and economic thresholds:
 
-* production behavior is modeled mathematically
-* future output is estimated
-* operational decisions can be simulated
+- production behavior is modeled mathematically
+- future output is estimated
+- operational decisions can be simulated
 
-This approach reflects how decline curve analysis is used in real oil & gas workflows.
+This workflow reflects how Decline Curve Analysis (DCA) is applied in real oil & gas engineering and data analytics.
 
 ---
 
@@ -273,7 +276,7 @@ Shows the historical production trend of the well.
 
 Comparison between historical production and the fitted decline model.
 
-![Decline curve analysis](outputs/figures/decline_curve_analysis.png)
+![Decline curve analysis](outputs/figures/decline_model_comparison.png)
 ---
 
 #### Model Comparison
@@ -288,7 +291,7 @@ Visual comparison between the exponential and hyperbolic decline models.
 
 Projection of future oil production based on the selected decline model.
 
-![Production forecast](outputs/figures/oil_production_forecast_best_model.png)
+![Production forecast](outputs/figures/forecast.png)
 
 ---
 
@@ -306,11 +309,11 @@ An interactive dashboard was developed using **Streamlit** to explore production
 
 The dashboard allows users to:
 
-* choose the decline model (Exponential or Hyperbolic)
-* adjust the forecast horizon
-* visualize historical production
-* explore future production scenarios
-* estimate the **Estimated Ultimate Recovery (EUR)** interactively
+- choose the decline model (Exponential or Hyperbolic)
+- adjust the forecast horizon
+- visualize historical production
+- explore future production scenarios
+- estimate the **Estimated Ultimate Recovery (EUR)** interactively
 
 ### Running the Dashboard
 
@@ -321,3 +324,11 @@ streamlit run app/dashboard.py
 ```
 
 The application will open automatically in the browser.
+
+## Tech Stack
+
+- Python (NumPy, Pandas, SciPy)
+- Machine Learning Metrics (Scikit-learn)
+- Data Visualization (Matplotlib, Seaborn)
+- Forecasting & Time Series Modeling
+- Streamlit (Interactive Apps)
