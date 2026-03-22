@@ -325,14 +325,6 @@ streamlit run app/dashboard.py
 
 The application will open automatically in the browser.
 
-## Tech Stack
-
-- Python (NumPy, Pandas, SciPy)
-- Machine Learning Metrics (Scikit-learn)
-- Data Visualization (Matplotlib, Seaborn)
-- Forecasting & Time Series Modeling
-- Streamlit (Interactive Apps)
-
 ---
 
 ## Field-Level Production Analysis
@@ -491,3 +483,78 @@ This analysis demonstrates how data-driven modeling can support:
 
 #### Forecast with Economic Limit
 ![Forecast with Economic Limit](outputs/figures/forecast_with_economic_limit.png)
+
+---
+
+## Project Summary
+
+This project presents an end-to-end analysis of oil well production using **Decline Curve Analysis (DCA)**, extended from a single-well scenario to a multi-well field simulation.
+
+The workflow integrates data processing, mathematical modeling, forecasting, and economic evaluation to replicate a realistic oil & gas analytics use case.
+
+---
+
+### Key Components
+
+- **Data Processing**  
+  Cleaning and preparation of time series production data.
+
+- **Decline Curve Modeling**  
+  Implementation of Exponential and Hyperbolic decline models, with automatic model selection based on RMSE.
+
+- **Production Forecasting**  
+  Estimation of future production profiles using the best-fit model.
+
+- **Estimated Ultimate Recovery (EUR)**  
+  Calculation of total recoverable oil per well.
+
+- **Multi-Well Simulation**  
+  Generation of a synthetic field with multiple wells to enable comparative analysis.
+
+- **Well Ranking & Classification**  
+  Wells ranked by EUR and categorized into performance tiers.
+
+- **Economic Limit Analysis**  
+  Identification of abandonment timing based on a defined production threshold.
+
+- **Revenue Estimation**  
+  Translation of production forecasts into economic value.
+
+- **Data Visualization**  
+  Clear visual storytelling combining historical data, forecasts, and economic insights.
+
+---
+
+### Key Outcomes
+
+- Developed a scalable workflow for **production analysis and forecasting**  
+- Demonstrated how **decline models support operational decisions**  
+- Integrated **technical modeling with economic evaluation**  
+- Enabled comparison across wells to identify **top-performing assets**  
+
+---
+
+### Tools & Technologies
+
+- **Python** (NumPy, Pandas, SciPy)
+- **Machine Learning / Optimization** (`curve_fit`)
+- **Data Visualization** (Matplotlib, Seaborn)
+- **Time Series Analysis**
+- **Streamlit** (interactive dashboard)
+
+---
+
+### Real-World Relevance
+
+This project reflects common workflows in the **oil & gas industry**, where decline curve analysis is used to:
+
+- forecast production  
+- estimate reserves  
+- evaluate well performance  
+- support investment and operational decisions  
+
+---
+
+### Final Note
+
+The project demonstrates the ability to bridge **data analysis, mathematical modeling, and business interpretation**, delivering insights that are both technically sound and operationally relevant.
